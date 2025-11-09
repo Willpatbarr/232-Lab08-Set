@@ -46,19 +46,24 @@ public:
    { 
    }
    set(const set &  rhs)
-   { 
+   {
+      bst = rhs.bst;
    }
    set(set && rhs) 
-   { 
+   {
+      bst = std::move(rhs.bst);
    }
    set(const std::initializer_list <T> & il) 
    {
+      bst = il;
    }
    template <class Iterator>
    set(Iterator first, Iterator last) 
    {
+      for (auto it = first; it != last; ++it)
+            bst.insert(*it, true); // insert unique elements
    }
-  ~set() { }
+   ~set() { bst.clear(); }
 
    //
    // Assign
@@ -66,18 +71,22 @@ public:
 
    set & operator = (const set & rhs)
    {
+      bst = rhs.bst;
       return *this;
    }
    set & operator = (set && rhs)
    {
+      bst = std::move(rhs.bst);
       return *this;
    }
    set & operator = (const std::initializer_list <T> & il)
    {
+      bst = il;
       return *this;
    }
    void swap(set& rhs) noexcept
    {
+      bst.swap(rhs.bst);
    }
 
    //
