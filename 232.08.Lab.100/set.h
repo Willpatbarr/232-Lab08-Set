@@ -13,7 +13,7 @@
 *        set                 : A class that represents a Set
 *        set::iterator       : An iterator through Set
 * Author
-*    <Your name here>
+*    Sara Nuss, William Patrick Barr
 ************************************************************************/
 
 #pragma once
@@ -126,42 +126,65 @@ public:
    //
    // Insert
    //
+   // copy insert
    std::pair<iterator, bool> insert(const T& t)
    {
-      std::pair<iterator, bool> p(iterator(), true);
+      std::pair<iterator, bool> p = bst.insert(t, true);
       return p;
    }
+   // move insert
    std::pair<iterator, bool> insert(T&& t)
    {
-      std::pair<iterator, bool> p(iterator(), true);
+       std::pair<iterator, bool> p = bst.insert(std::move(t), true);
       return p;
    }
+   // insert all the elements in a given initializer list
    void insert(const std::initializer_list <T>& il)
    {
+       for(T i : il)
+           insert(i);
    }
+   // insert a range of elements
    template <class Iterator>
    void insert(Iterator first, Iterator last)
    {
+       // use iterator to insert each element
+        for(iterator it = first; first != last; ++first)
+            insert(*first);
    }
 
 
    //
    // Remove
    //
+   // remove every element using BST clear.
    void clear() noexcept 
-   { 
+   {
+       bst.clear();
    }
+   // erase a single element
    iterator erase(iterator &it)
-   { 
-      return iterator(); 
+   {
+      return iterator(bst.erase(it.it));
    }
+   // erase a given element
    size_t erase(const T & t) 
    {
-      return 99;
+      iterator it = find(t);
+      // check if it's in there
+      if (it == end())
+          return 0; // no elemenets removed
+      // erase it
+      erase(it);
+      return 1;
    }
+   // erase elements in a given range
    iterator erase(iterator &itBegin, iterator &itEnd)
    {
-      return iterator();
+       // go through each element and erase it
+       while (itBegin != itEnd)
+           itBegin = erase(itBegin);
+      return itEnd;
    }
 
 private:
@@ -183,57 +206,75 @@ class set <T> :: iterator
 public:
    // constructors, destructors, and assignment operator
    iterator() 
-   { 
+   {
+       it.pNode = nullptr;
    }
    iterator(const typename custom::BST<T>::iterator& itRHS) 
-   {  
+   {
+       it = itRHS;
    }
    iterator(const iterator & rhs) 
-   { 
+   {
+       it = rhs.it;
    }
    iterator & operator = (const iterator & rhs)
    {
+       it = rhs.it;
       return *this;
    }
 
    // equals, not equals operator
    bool operator != (const iterator & rhs) const 
    { 
-      return true; 
+      return  it != rhs.it;
    }
    bool operator == (const iterator & rhs) const 
    { 
-      return true; 
+      return it == rhs.it;
    }
 
    // dereference operator: by-reference so we can modify the Set
    const T & operator * () const 
    { 
-      return *(new T); 
+      return *it;
    }
 
    // prefix increment
    iterator & operator ++ ()
    {
+       // increment and return
+       ++it;
       return *this;
    }
 
    // postfix increment
    iterator operator++ (int postfix)
    {
-      return *this;
+       // iterator to be returned
+       iterator old(*this);
+       // increment it
+       ++it;
+       // return old since it's postfix
+       return old;
    }
    
    // prefix decrement
    iterator & operator -- ()
    {
+       // decrement and return
+       --it;
       return *this;
    }
    
    // postfix decrement
    iterator operator-- (int postfix)
    {
-      return *this;
+        // create iterator to returned
+        iterator old(*this);
+        // decrement this
+        --it;
+        // return old since it's postfix
+        return *old;
    }
    
 private:
